@@ -1,0 +1,40 @@
+---
+- name: Automatización de servidores con Ansible y Docker
+  hosts: docker
+  gather_facts: yes
+  tasks:
+    - name: 1. Mostrar el nombre del host
+      debug:
+        msg: "El hostname de este servidor es: {{ ansible_hostname }}"
+
+    - name: 2. Mostrar el sistema operativo
+      debug:
+        msg: "Sistema operativo detectado: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+
+    - name: 3. Crear el directorio /tmp/ansible-demo
+      file:
+        path: /tmp/ansible-demo
+        state: directory
+        mode: '0755'
+
+    - name: 4 y 5. Crear archivo info.txt y escribir el nombre del servidor y SO
+      copy:
+        dest: /tmp/ansible-demo/info.txt
+        content: |
+          Servidor: {{ ansible_hostname }}
+          Sistema Operativo: {{ ansible_distribution }} {{ ansible_distribution_version }}
+
+    - name: 6. Crear directorios mediante un loop (logs, backup, config)
+      file:
+        path: "/tmp/ansible-demo/{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - logs
+        - backup
+        - config
+
+    - name: 7. Mostrar un mensaje únicamente cuando el sistema operativo sea Ubuntu
+      debug:
+        msg: "¡Verificación exitosa! Este nodo corre sobre Ubuntu."
+      when: ansible_distribution == "Ubuntu"
